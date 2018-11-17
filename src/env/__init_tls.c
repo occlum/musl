@@ -10,6 +10,7 @@
 
 int __init_tp(void *p)
 {
+#ifndef __OCCLUM
 	pthread_t td = p;
 	td->self = td;
 	int r = __set_thread_area(TP_ADJ(p));
@@ -20,6 +21,9 @@ int __init_tp(void *p)
 	td->locale = &libc.global_locale;
 	td->robust_list.head = &td->robust_list.head;
 	return 0;
+#else
+    return 0;
+#endif /* __OCCLUM */
 }
 
 static struct builtin_tls {
@@ -33,6 +37,7 @@ static struct tls_module main_tls;
 
 void *__copy_tls(unsigned char *mem)
 {
+#ifndef __OCCLUM
 	pthread_t td;
 	struct tls_module *p;
 	size_t i;
@@ -64,6 +69,9 @@ void *__copy_tls(unsigned char *mem)
 	dtv[0] = libc.tls_cnt;
 	td->dtv = td->dtv_copy = dtv;
 	return td;
+#else
+    return NULL;
+#endif /* __OCCLUM */
 }
 
 #if ULONG_MAX == 0xffffffff

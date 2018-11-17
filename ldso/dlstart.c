@@ -20,6 +20,11 @@
 
 hidden void _dlstart_c(size_t *sp, size_t *dynv)
 {
+}
+
+#if 0
+hidden void _dlstart_c(size_t *sp, size_t *dynv)
+{
 	size_t i, aux[AUX_CNT], dyn[DYN_CNT];
 	size_t *rel, rel_size, base;
 
@@ -146,3 +151,4 @@ hidden void _dlstart_c(size_t *sp, size_t *dynv)
 	GETFUNCSYM(&dls2, __dls2, base+dyn[DT_PLTGOT]);
 	dls2((void *)base, sp);
 }
+#endif /* 0 */

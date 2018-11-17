@@ -17,13 +17,21 @@ includedir = $(prefix)/include
 libdir = $(prefix)/lib
 syslibdir = /lib
 
-SRC_DIRS = $(addprefix $(srcdir)/,src/* crt ldso)
-BASE_GLOBS = $(addsuffix /*.c,$(SRC_DIRS))
-ARCH_GLOBS = $(addsuffix /$(ARCH)/*.[csS],$(SRC_DIRS))
-BASE_SRCS = $(sort $(wildcard $(BASE_GLOBS)))
-ARCH_SRCS = $(sort $(wildcard $(ARCH_GLOBS)))
+# Yes - to build the libc for use in Occlum
+# No - to build the libc for use in Linux
+occlum = yes
+
+#SRC_DIRS = $(addprefix $(srcdir)/,src/* crt ldso)
+#BASE_GLOBS = $(addsuffix /*.c,$(SRC_DIRS))
+#ARCH_GLOBS = $(addsuffix /$(ARCH)/*.[csS],$(SRC_DIRS))
+#BASE_SRCS = $(sort $(wildcard $(BASE_GLOBS)))
+#ARCH_SRCS = $(sort $(wildcard $(ARCH_GLOBS)))
+-include occlum_srcs.mak
+
 BASE_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(BASE_SRCS)))
 ARCH_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(ARCH_SRCS)))
+# Occlum Notes:
+# If <a_src_dir>/arch/%.[csS] exists, <a_src_dir>/%.c will not be compiled
 REPLACED_OBJS = $(sort $(subst /$(ARCH)/,/,$(ARCH_OBJS)))
 ALL_OBJS = $(addprefix obj/, $(filter-out $(REPLACED_OBJS), $(sort $(BASE_OBJS) $(ARCH_OBJS))))
 
@@ -75,6 +83,10 @@ WRAPCC_CLANG = clang
 LDSO_PATHNAME = $(syslibdir)/ld-musl-$(ARCH)$(SUBARCH).so.1
 
 -include config.mak
+
+ifeq ($(occlum),yes)
+CFLAGS += -D__OCCLUM
+endif
 
 ifeq ($(ARCH),)
 
@@ -175,8 +187,13 @@ lib/%.o: obj/crt/$(ARCH)/%.o
 lib/%.o: obj/crt/%.o
 	cp $< $@
 
+ifeq ($(occlum),yes)
+lib/musl-gcc.specs: $(srcdir)/tools/occlum-musl-gcc.specs.sh config.mak
+	sh $< "$(includedir)" "$(libdir)" "$(LDSO_PATHNAME)" > $@
+else
 lib/musl-gcc.specs: $(srcdir)/tools/musl-gcc.specs.sh config.mak
 	sh $< "$(includedir)" "$(libdir)" "$(LDSO_PATHNAME)" > $@
+endif
 
 obj/musl-gcc: config.mak
 	printf '#!/bin/sh\nexec "$${REALGCC:-$(WRAPCC_GCC)}" "$$@" -specs "%s/musl-gcc.specs"\n' "$(libdir)" > $@
