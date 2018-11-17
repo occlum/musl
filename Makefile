@@ -21,18 +21,24 @@ syslibdir = /lib
 # No - to build the libc for use in Linux
 occlum = yes
 
-#SRC_DIRS = $(addprefix $(srcdir)/,src/* crt ldso)
-#BASE_GLOBS = $(addsuffix /*.c,$(SRC_DIRS))
-#ARCH_GLOBS = $(addsuffix /$(ARCH)/*.[csS],$(SRC_DIRS))
-#BASE_SRCS = $(sort $(wildcard $(BASE_GLOBS)))
-#ARCH_SRCS = $(sort $(wildcard $(ARCH_GLOBS)))
--include occlum_srcs.mak
+ifeq ($(occlum),yes)
+include occlum_srcs.mak
+else
+SRC_DIRS = $(addprefix $(srcdir)/,src/* crt ldso)
+BASE_GLOBS = $(addsuffix /*.c,$(SRC_DIRS))
+ARCH_GLOBS = $(addsuffix /$(ARCH)/*.[csS],$(SRC_DIRS))
+BASE_SRCS = $(sort $(wildcard $(BASE_GLOBS)))
+ARCH_SRCS = $(sort $(wildcard $(ARCH_GLOBS)))
+endif
 
 BASE_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(BASE_SRCS)))
 ARCH_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(ARCH_SRCS)))
 # Occlum Notes:
-# If <a_src_dir>/arch/%.[csS] exists, <a_src_dir>/%.c will not be compiled
+# If <a_src_dir>/<arch>/%.[csS] exists, <a_src_dir>/%.c will not be compiled
 REPLACED_OBJS = $(sort $(subst /$(ARCH)/,/,$(ARCH_OBJS)))
+ifeq ($(occlum),yes)
+REPLACED_OBJS := $(sort $(subst /occlum/,/,$(REPLACED_OBJS)))
+endif
 ALL_OBJS = $(addprefix obj/, $(filter-out $(REPLACED_OBJS), $(sort $(BASE_OBJS) $(ARCH_OBJS))))
 
 LIBC_OBJS = $(filter obj/src/%,$(ALL_OBJS))
@@ -74,7 +80,11 @@ CRT_LIBS = $(addprefix lib/,$(notdir $(CRT_OBJS)))
 STATIC_LIBS = lib/libc.a
 SHARED_LIBS = lib/libc.so
 TOOL_LIBS = lib/musl-gcc.specs
+ifeq ($(occlum),yes)
+ALL_LIBS = $(CRT_LIBS) $(STATIC_LIBS) $(EMPTY_LIBS) $(TOOL_LIBS)
+else
 ALL_LIBS = $(CRT_LIBS) $(STATIC_LIBS) $(SHARED_LIBS) $(EMPTY_LIBS) $(TOOL_LIBS)
+endif
 ALL_TOOLS = obj/musl-gcc
 
 WRAPCC_GCC = gcc
@@ -97,6 +107,16 @@ all:
 else
 
 all: $(ALL_LIBS) $(ALL_TOOLS)
+
+debug:
+	@echo "BASE_OBJS"
+	@echo $(BASE_OBJS)
+	@echo "ARCH_OBJS"
+	@echo $(ARCH_OBJS)
+	@echo "REPLACED_OBJS"
+	@echo $(REPLACED_OBJS)
+	@echo "ALL_OBJS"
+	@echo $(ALL_OBJS)
 
 OBJ_DIRS = $(sort $(patsubst %/,%,$(dir $(ALL_LIBS) $(ALL_TOOLS) $(ALL_OBJS) $(GENH) $(GENH_INT))) obj/include)
 

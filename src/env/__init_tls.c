@@ -10,7 +10,7 @@
 
 int __init_tp(void *p)
 {
-#ifndef __OCCLUM
+#if 0
 	pthread_t td = p;
 	td->self = td;
 	int r = __set_thread_area(TP_ADJ(p));
@@ -37,7 +37,7 @@ static struct tls_module main_tls;
 
 void *__copy_tls(unsigned char *mem)
 {
-#ifndef __OCCLUM
+#if 0
 	pthread_t td;
 	struct tls_module *p;
 	size_t i;
