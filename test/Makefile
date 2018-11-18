@@ -7,8 +7,6 @@ BIN = $(BUILD_DIR)/main
 BIN_OBJ = $(BUILD_DIR)/main.o
 BIN_SRC = main.c
 
-LIB_NAME = occlum_stub
-
 all: $(BUILD_DIR) $(BIN)
 	readelf -a $(BIN) > $(BUILD_DIR)/main.readelf
 	objdump -d $(BIN) > $(BUILD_DIR)/main.objdump
@@ -17,7 +15,7 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 $(BIN): $(BIN_OBJ) $(LIB_SO)
-	$(CC) $(LFLAGS) -l$(LIB_NAME) -o $@ $<
+	$(CC) $(LFLAGS) -o $@ $<
 
 $(BIN_OBJ): $(BIN_SRC)
 	$(CC) $(CFLAGS) -c -o $@ $<
