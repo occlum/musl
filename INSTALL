@@ -2,6 +2,18 @@
 Quick Installation Guide for musl libc
 ======================================
 
+***************************************
+* THIS IS OCCLUM'S FORK OF MUSL LIBC  *
+***************************************
+
+The default installation path is /usr/local/occlum instead of 
+/usr/local/musl.
+
+***************************************
+* THE END OF OCCLUM'S SPECIFIC INFO   *
+***************************************
+
+
 There are many different ways to install musl depending on your usage
 case. This document covers only the build and installation of musl by
 itself, which is useful for upgrading an existing musl-based system or

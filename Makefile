@@ -12,24 +12,39 @@ srcdir = .
 exec_prefix = /usr/local
 bindir = $(exec_prefix)/bin
 
-prefix = /usr/local/musl
+prefix = /usr/local/occlum
 includedir = $(prefix)/include
 libdir = $(prefix)/lib
 syslibdir = /lib
 
+# Yes - to build the libc for use in Occlum
+# No - to build the libc for use in Linux
+occlum = yes
+
+ifeq ($(occlum),yes)
+include occlum_srcs.mak
+else
 SRC_DIRS = $(addprefix $(srcdir)/,src/* crt ldso)
 BASE_GLOBS = $(addsuffix /*.c,$(SRC_DIRS))
 ARCH_GLOBS = $(addsuffix /$(ARCH)/*.[csS],$(SRC_DIRS))
 BASE_SRCS = $(sort $(wildcard $(BASE_GLOBS)))
 ARCH_SRCS = $(sort $(wildcard $(ARCH_GLOBS)))
+endif
+
 BASE_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(BASE_SRCS)))
 ARCH_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(ARCH_SRCS)))
+# Occlum Notes:
+# If <a_src_dir>/<arch>/%.[csS] exists, <a_src_dir>/%.c will not be compiled
 REPLACED_OBJS = $(sort $(subst /$(ARCH)/,/,$(ARCH_OBJS)))
+ifeq ($(occlum),yes)
+REPLACED_OBJS := $(sort $(subst /occlum/,/,$(REPLACED_OBJS)))
+endif
 ALL_OBJS = $(addprefix obj/, $(filter-out $(REPLACED_OBJS), $(sort $(BASE_OBJS) $(ARCH_OBJS))))
 
 LIBC_OBJS = $(filter obj/src/%,$(ALL_OBJS))
 LDSO_OBJS = $(filter obj/ldso/%,$(ALL_OBJS:%.o=%.lo))
 CRT_OBJS = $(filter obj/crt/%,$(ALL_OBJS))
+STUB_OBJS = $(filter obj/occlum_stub/%,$(ALL_OBJS))
 
 AOBJS = $(LIBC_OBJS)
 LOBJS = $(LIBC_OBJS:.o=.lo)
@@ -64,9 +79,19 @@ EMPTY_LIB_NAMES = m rt pthread crypt util xnet resolv dl
 EMPTY_LIBS = $(EMPTY_LIB_NAMES:%=lib/lib%.a)
 CRT_LIBS = $(addprefix lib/,$(notdir $(CRT_OBJS)))
 STATIC_LIBS = lib/libc.a
+ifeq ($(occlum),yes)
+STUB_LIBS = lib/libocclum_stub.so
+SHARED_LIBS =
+else
+STUB_LIBS =
 SHARED_LIBS = lib/libc.so
+endif
 TOOL_LIBS = lib/musl-gcc.specs
+ifeq ($(occlum),yes)
+ALL_LIBS = $(CRT_LIBS) $(STATIC_LIBS) $(SHARED_LIBS) $(EMPTY_LIBS) $(TOOL_LIBS) $(STUB_LIBS)
+else
 ALL_LIBS = $(CRT_LIBS) $(STATIC_LIBS) $(SHARED_LIBS) $(EMPTY_LIBS) $(TOOL_LIBS)
+endif
 ALL_TOOLS = obj/musl-gcc
 
 WRAPCC_GCC = gcc
@@ -75,6 +100,10 @@ WRAPCC_CLANG = clang
 LDSO_PATHNAME = $(syslibdir)/ld-musl-$(ARCH)$(SUBARCH).so.1
 
 -include config.mak
+
+ifeq ($(occlum),yes)
+CFLAGS += -D__OCCLUM
+endif
 
 ifeq ($(ARCH),)
 
@@ -147,6 +176,9 @@ obj/%.o: $(srcdir)/%.S
 obj/%.o: $(srcdir)/%.c $(GENH) $(IMPH)
 	$(CC_CMD)
 
+lib/libocclum_stub.so: $(STUB_OBJS)
+	$(CC) $(CFLAGS_ALL) -nostdlib -shared -o $@ $<
+
 obj/%.lo: $(srcdir)/%.s
 	$(AS_CMD)
 
@@ -175,8 +207,13 @@ lib/%.o: obj/crt/$(ARCH)/%.o
 lib/%.o: obj/crt/%.o
 	cp $< $@
 
+ifeq ($(occlum),yes)
+lib/musl-gcc.specs: $(srcdir)/tools/occlum-musl-gcc.specs.sh config.mak
+	sh $< "$(includedir)" "$(libdir)" "$(LDSO_PATHNAME)" > $@
+else
 lib/musl-gcc.specs: $(srcdir)/tools/musl-gcc.specs.sh config.mak
 	sh $< "$(includedir)" "$(libdir)" "$(LDSO_PATHNAME)" > $@
+endif
 
 obj/musl-gcc: config.mak
 	printf '#!/bin/sh\nexec "$${REALGCC:-$(WRAPCC_GCC)}" "$$@" -specs "%s/musl-gcc.specs"\n' "$(libdir)" > $@

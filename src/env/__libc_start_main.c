@@ -36,8 +36,10 @@ void __init_libc(char **envp, char *pn)
 	__progname = __progname_full = pn;
 	for (i=0; pn[i]; i++) if (pn[i]=='/') __progname = pn+i+1;
 
+#ifndef __OCCLUM
 	__init_tls(aux);
 	__init_ssp((void *)aux[AT_RANDOM]);
+#endif /* __OCCLUM */
 
 	if (aux[AT_UID]==aux[AT_EUID] && aux[AT_GID]==aux[AT_EGID]
 		&& !aux[AT_SECURE]) return;
@@ -71,12 +73,14 @@ static lsm2_fn libc_start_main_stage2;
 
 int __libc_start_main(int (*main)(int,char **,char **), int argc, char **argv)
 {
+#ifndef __OCCLUM
 	char **envp = argv+argc+1;
 
 	/* External linkage, and explicit noinline attribute if available,
 	 * are used to prevent the stack frame used during init from
 	 * persisting for the entire process lifetime. */
 	__init_libc(envp, argv[0]);
+#endif /* __OCCLUM */
 
 	/* Barrier against hoisting application code or anything using ssp
 	 * or thread pointer prior to its initialization above. */
