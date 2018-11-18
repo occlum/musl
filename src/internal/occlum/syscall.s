@@ -1,6 +1,3 @@
-.extern __occlum_syscall
-.type __occlum_syscall,@function
-
 .global __syscall
 .hidden __syscall
 .type __syscall,@function
@@ -12,5 +9,5 @@ __syscall:
 	movq %r8,%r10
 	movq %r9,%r8
 	movq 8(%rsp),%r9
-	call __occlum_syscall
+	call __occlum_syscall@PLT
 	ret

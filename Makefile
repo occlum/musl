@@ -78,7 +78,11 @@ EMPTY_LIB_NAMES = m rt pthread crypt util xnet resolv dl
 EMPTY_LIBS = $(EMPTY_LIB_NAMES:%=lib/lib%.a)
 CRT_LIBS = $(addprefix lib/,$(notdir $(CRT_OBJS)))
 STATIC_LIBS = lib/libc.a
+ifeq ($(occlum),yes)
+SHARED_LIBS =
+else
 SHARED_LIBS = lib/libc.so
+endif
 TOOL_LIBS = lib/musl-gcc.specs
 ifeq ($(occlum),yes)
 ALL_LIBS = $(CRT_LIBS) $(STATIC_LIBS) $(EMPTY_LIBS) $(TOOL_LIBS)
@@ -107,16 +111,6 @@ all:
 else
 
 all: $(ALL_LIBS) $(ALL_TOOLS)
-
-debug:
-	@echo "BASE_OBJS"
-	@echo $(BASE_OBJS)
-	@echo "ARCH_OBJS"
-	@echo $(ARCH_OBJS)
-	@echo "REPLACED_OBJS"
-	@echo $(REPLACED_OBJS)
-	@echo "ALL_OBJS"
-	@echo $(ALL_OBJS)
 
 OBJ_DIRS = $(sort $(patsubst %/,%,$(dir $(ALL_LIBS) $(ALL_TOOLS) $(ALL_OBJS) $(GENH) $(GENH_INT))) obj/include)
 

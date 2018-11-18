@@ -2,6 +2,8 @@ BASE_SRCS :=
 BASE_SRCS += ./crt/crt1.c
 BASE_SRCS += ./crt/rcrt1.c
 BASE_SRCS += ./crt/Scrt1.c
+BASE_SRCS += ./crt/crti.c
+BASE_SRCS += ./crt/crtn.c
 BASE_SRCS += ./ldso/dlstart.c
 BASE_SRCS += ./src/env/__environ.c
 BASE_SRCS += ./src/env/__init_tls.c
@@ -12,7 +14,7 @@ BASE_SRCS += ./src/exit/exit.c
 BASE_SRCS += ./src/exit/_Exit.c
 BASE_SRCS := $(sort $(BASE_SRCS))
 
-ARCH_SRCS =
+ARCH_SRCS :=
 ARCH_SRCS += ./crt/x86_64/crti.s
 ARCH_SRCS += ./crt/x86_64/crtn.s
 ARCH_SRCS += ./src/internal/occlum/syscall.s
