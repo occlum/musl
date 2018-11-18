@@ -12,6 +12,7 @@ BASE_SRCS += ./src/internal/libc.c
 BASE_SRCS += ./src/thread/default_attr.c
 BASE_SRCS += ./src/exit/exit.c
 BASE_SRCS += ./src/exit/_Exit.c
+BASE_SRCS += ./occlum_stub/__occlum_syscall.c
 BASE_SRCS := $(sort $(BASE_SRCS))
 
 ARCH_SRCS :=

@@ -44,6 +44,7 @@ ALL_OBJS = $(addprefix obj/, $(filter-out $(REPLACED_OBJS), $(sort $(BASE_OBJS) 
 LIBC_OBJS = $(filter obj/src/%,$(ALL_OBJS))
 LDSO_OBJS = $(filter obj/ldso/%,$(ALL_OBJS:%.o=%.lo))
 CRT_OBJS = $(filter obj/crt/%,$(ALL_OBJS))
+STUB_OBJS = $(filter obj/occlum_stub/%,$(ALL_OBJS))
 
 AOBJS = $(LIBC_OBJS)
 LOBJS = $(LIBC_OBJS:.o=.lo)
@@ -79,13 +80,15 @@ EMPTY_LIBS = $(EMPTY_LIB_NAMES:%=lib/lib%.a)
 CRT_LIBS = $(addprefix lib/,$(notdir $(CRT_OBJS)))
 STATIC_LIBS = lib/libc.a
 ifeq ($(occlum),yes)
+STUB_LIBS = lib/libocclum_stub.so
 SHARED_LIBS =
 else
+STUB_LIBS =
 SHARED_LIBS = lib/libc.so
 endif
 TOOL_LIBS = lib/musl-gcc.specs
 ifeq ($(occlum),yes)
-ALL_LIBS = $(CRT_LIBS) $(STATIC_LIBS) $(EMPTY_LIBS) $(TOOL_LIBS)
+ALL_LIBS = $(CRT_LIBS) $(STATIC_LIBS) $(SHARED_LIBS) $(EMPTY_LIBS) $(TOOL_LIBS) $(STUB_LIBS)
 else
 ALL_LIBS = $(CRT_LIBS) $(STATIC_LIBS) $(SHARED_LIBS) $(EMPTY_LIBS) $(TOOL_LIBS)
 endif
@@ -172,6 +175,9 @@ obj/%.o: $(srcdir)/%.S
 
 obj/%.o: $(srcdir)/%.c $(GENH) $(IMPH)
 	$(CC_CMD)
+
+lib/libocclum_stub.so: $(STUB_OBJS)
+	$(CC) $(CFLAGS_ALL) -nostdlib -shared -o $@ $<
 
 obj/%.lo: $(srcdir)/%.s
 	$(AS_CMD)
