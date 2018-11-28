@@ -8,6 +8,8 @@
 
 #define LOCALE_NAME_MAX 23
 
+#ifndef __OCCLUM
+
 struct __locale_map {
 	const void *map;
 	size_t map_size;
@@ -38,6 +40,13 @@ hidden char *__gettextdomain(void);
 #define CURRENT_LOCALE (__pthread_self()->locale)
 
 #define CURRENT_UTF8 (!!__pthread_self()->locale->cat[LC_CTYPE])
+
+#else
+
+#define LCTRANS(msg, lc, loc) (msg)
+#define CURRENT_LOCALE 0
+
+#endif /* __OCCLUM */
 
 #undef MB_CUR_MAX
 #define MB_CUR_MAX (CURRENT_UTF8 ? 4 : 1)
