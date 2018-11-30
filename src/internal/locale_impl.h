@@ -48,6 +48,8 @@ hidden char *__gettextdomain(void);
 
 #endif /* __OCCLUM */
 
+#define CURRENT_UTF8 1
+
 #undef MB_CUR_MAX
 #define MB_CUR_MAX (CURRENT_UTF8 ? 4 : 1)
 
