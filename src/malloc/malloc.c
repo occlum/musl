@@ -26,16 +26,20 @@ int __malloc_replaced;
 
 static inline void lock(volatile int *lk)
 {
+#ifndef __OCCLUM
 	if (libc.threads_minus_1)
 		while(a_swap(lk, 1)) __wait(lk, lk+1, 1, 1);
+#endif
 }
 
 static inline void unlock(volatile int *lk)
 {
+#ifndef __OCCLUM
 	if (lk[0]) {
 		a_store(lk, 0);
 		if (lk[1]) __wake(lk, 1, 1);
 	}
+#endif
 }
 
 static inline void lock_bin(int i)
@@ -495,12 +499,16 @@ void __bin_chunk(struct chunk *self)
 	if (reclaim) {
 		uintptr_t a = (uintptr_t)self + SIZE_ALIGN+PAGE_SIZE-1 & -PAGE_SIZE;
 		uintptr_t b = (uintptr_t)next - SIZE_ALIGN & -PAGE_SIZE;
+#ifdef __OCCLUM
+        memset((void*)a, 0, b-a);
+#else
 #if 1
 		__madvise((void *)a, b-a, MADV_DONTNEED);
 #else
 		__mmap((void *)a, b-a, PROT_READ|PROT_WRITE,
 			MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED, -1, 0);
 #endif
+#endif /* __OCCLUM */
 	}
 
 	unlock_bin(i);
