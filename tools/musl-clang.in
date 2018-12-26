@@ -32,4 +32,8 @@ exec $cc \
     "$@" \
     $eflags \
     -L"$libc_lib" \
-    -L-user-end
+    -L-user-end \
+    -fPIC \
+    -fno-stack-protector \
+    -pie \
+    -Wno-unused-command-line-argument

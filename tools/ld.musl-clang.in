@@ -48,4 +48,4 @@ for x ; do
     esac
 done
 
-exec $($cc -print-prog-name=ld) -nostdlib "$@" -lc -dynamic-linker "$ldso"
+exec $($cc -print-prog-name=ld) -pie -nostdlib "$@" -lc -locclum_stub -dynamic-linker "$ldso"

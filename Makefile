@@ -102,7 +102,8 @@ LDSO_PATHNAME = $(syslibdir)/ld-musl-$(ARCH)$(SUBARCH).so.1
 -include config.mak
 
 ifeq ($(occlum),yes)
-CFLAGS += -D__OCCLUM
+CFLAGS += -D__OCCLUM -fno-stack-protector -Wno-shift-op-parentheses
+CFLAGS += -Xclang -load -Xclang $(LLVM_PATH)/lib/LLVMBoundchecker.so -mllvm -check-store-only=true
 endif
 
 ifeq ($(ARCH),)
@@ -164,7 +165,12 @@ CC_CMD = $(CC) $(CFLAGS_ALL) -c -o $@ $<
 ifeq ($(ADD_CFI),yes)
 	AS_CMD = LC_ALL=C awk -f $(srcdir)/tools/add-cfi.common.awk -f $(srcdir)/tools/add-cfi.$(ARCH).awk $< | $(CC) $(CFLAGS_ALL) -x assembler -c -o $@ -
 else
-	AS_CMD = $(CC_CMD)
+	# TODO: remove this when -check-store-only=true by default
+	ASFLAGS_ALL := $(CFLAGS_ALL)
+	ASFLAGS_ALL := $(filter-out -mllvm,$(ASFLAGS_ALL))
+	ASFLAGS_ALL := $(filter-out -check-store-only=%,$(ASFLAGS_ALL))
+	AS_CMD = $(CC) $(ASFLAGS_ALL) -c -o $@ $<
+	#AS_CMD := $(CC_CMD)
 endif
 
 obj/%.o: $(srcdir)/%.s

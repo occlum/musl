@@ -6,8 +6,17 @@ Quick Installation Guide for musl libc
 * THIS IS OCCLUM'S FORK OF MUSL LIBC  *
 ***************************************
 
-The default installation path is /usr/local/occlum instead of 
-/usr/local/musl.
+Before compiling this musl libc, make sure Occlum's fork of LLVM toolchain is
+installed. And LLVM's path is included in the PATH environment variable.
+
+Run the following command to generate proper config for Makefile
+
+    CC=clang ./configure --prefix=/usr/local/occlum --enable-wrapper=clang
+
+Then
+
+    make
+    sudo make install
 
 ***************************************
 * THE END OF OCCLUM'S SPECIFIC INFO   *
