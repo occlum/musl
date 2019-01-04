@@ -56,6 +56,7 @@ BASE_SRCS += ./src/malloc/malloc.c
 BASE_SRCS += ./src/malloc/malloc_usable_size.c
 BASE_SRCS += ./src/malloc/memalign.c
 BASE_SRCS += ./src/malloc/posix_memalign.c
+BASE_SRCS += ./src/misc/syscall.c
 BASE_SRCS += ./src/mman/mmap.c
 BASE_SRCS += ./src/mman/mremap.c
 BASE_SRCS += ./src/mman/munmap.c

@@ -332,3 +332,5 @@
 #define __NR_pkey_free				331
 #define __NR_statx				332
 
+/* Occlum notes: special syscalls of Occlum */
+#define __NR_spawn				360
