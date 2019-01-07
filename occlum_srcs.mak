@@ -45,6 +45,7 @@ BASE_SRCS += ./src/string/strnlen.c
 BASE_SRCS += ./src/thread/__lock.c
 BASE_SRCS += ./src/thread/__syscall_cp.c
 BASE_SRCS += ./src/thread/default_attr.c
+BASE_SRCS += ./src/time/gettimeofday.c
 BASE_SRCS += ./src/math/__fpclassify.c
 BASE_SRCS += ./src/math/__fpclassifyl.c
 BASE_SRCS += ./src/math/__fpclassifyf.c
