@@ -6,13 +6,21 @@
 
 int posix_spawn_file_actions_addopen(posix_spawn_file_actions_t *restrict fa, int fd, const char *restrict path, int flags, mode_t mode)
 {
+#ifndef __OCCLUM
 	struct fdop *op = malloc(sizeof *op + strlen(path) + 1);
+#else
+	struct fdop *op = malloc(sizeof *op);
+#endif
 	if (!op) return ENOMEM;
 	op->cmd = FDOP_OPEN;
 	op->fd = fd;
 	op->oflag = flags;
 	op->mode = mode;
+#ifndef __OCCLUM
 	strcpy(op->path, path);
+#else
+	op->path = path;
+#endif
 	if ((op->next = fa->__actions)) op->next->prev = op;
 	op->prev = 0;
 	fa->__actions = op;
