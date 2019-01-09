@@ -86,6 +86,7 @@ BASE_SRCS += ./src/unistd/pipe2.c
 BASE_SRCS += ./src/unistd/read.c
 BASE_SRCS += ./src/unistd/write.c
 BASE_SRCS += ./src/unistd/writev.c
+BASE_SRCS += ./src/unistd/sync.c
 BASE_SRCS += ./occlum_stub/__occlum_syscall.c
 BASE_SRCS := $(sort $(BASE_SRCS))
 
