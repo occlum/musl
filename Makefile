@@ -102,8 +102,10 @@ LDSO_PATHNAME = $(syslibdir)/ld-musl-$(ARCH)$(SUBARCH).so.1
 -include config.mak
 
 ifeq ($(occlum),yes)
+CLANG_BIN_PATH := $(shell clang -print-prog-name=clang)
+LLVM_PATH := $(abspath $(dir $(CLANG_BIN_PATH))../)
 CFLAGS += -D__OCCLUM -fno-stack-protector -Wno-shift-op-parentheses
-CFLAGS += -Xclang -load -Xclang $(LLVM_PATH)/lib/LLVMBoundchecker.so -mllvm -check-store-only=true
+CFLAGS += -Xclang -load -Xclang $(LLVM_PATH)/lib/LLVMMDSFIIRInserter.so
 endif
 
 ifeq ($(ARCH),)
