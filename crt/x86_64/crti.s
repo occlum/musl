@@ -6,4 +6,5 @@ _init:
 .section .fini
 .global _fini
 _fini:
+  nopl 512(%rbx,%rbx)
 	push %rax
