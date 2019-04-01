@@ -1,0 +1,82 @@
+.text
+.global __child_start
+.hidden __child_start
+.type   __child_start,@function
+__child_start:
+    // 16(%rsp) - void* args
+    mov 16(%rsp), %rdi
+    // 8(%rsp)  - int(*func)(void*)
+    mov 8(%rsp), %rcx
+    call *%rcx
+
+    // Call exit syscall
+    //  int syscall_num - %rdi
+    //  int exit_code - %rsi
+    mov $60, %rdi
+    mov %rax, %rsi
+    call __syscall
+
+    // This should never happen!
+    hlt
+
+.text
+.global __clone
+.hidden __clone
+.type   __clone,@function
+__clone:
+    // Func args:
+    //  int(*func)(void*) - %rdi
+    //  void* stack - %rsi
+    //  int flags   - %rdx
+    //  void* args  - %rcx
+    //  int* ptid   - %r8
+    //  unsigned long newtls - %r9
+    //  int* ctid   - *0x8(%rsp)
+
+    //
+    // Pass args to the stack of the child
+    //
+    // Save child stack addr into another scratch register
+    mov %rsi, %r10
+    // Align child stack addr to 16 byte boundary
+    and $-16, %r10
+    // Push args into the stack of the child
+    sub $8, %r10
+    mov %rcx, (%r10)
+    // Push func into the stack of the child
+    sub $8, %r10
+    mov %rdi, (%r10)
+    // Push "return address" for syscall
+    // LibOS will find the entry point of the child by popping
+    // the value from the top of the stack of the new thread.
+    sub $8, %r10
+    mov __child_start@GOTPCREL(%rip), %r11
+    mov %r11, (%r10)
+
+    //
+    // Pass args to regiters
+    //
+    // The syscall number of clone is 56
+    mov $56, %rdi
+    // Pass flags
+    mov %rdx, %rsi
+    // Pass child stack addr
+    mov %r10, %rdx
+    // Pass ptid
+    mov %r8, %rcx
+    // Pass ctid
+    mov 8(%rsp), %r8
+    // Pass newtls
+    // mov %r9, %r9
+
+    //
+    // Call clone syscall
+    //
+    //  int num              - %rdi
+    //  unsigned long flags  - %rsi
+    //  void* stack          - %rdx
+    //  int* ptid            - %rcx
+    //  int* ctid            - %r8
+    //  unsigned long newtls - %r9
+    call __syscall
+    ret
