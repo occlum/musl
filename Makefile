@@ -21,25 +21,32 @@ syslibdir = /lib
 # No - to build the libc for use in Linux
 occlum = yes
 
-ifeq ($(occlum),yes)
-include occlum_srcs.mak
-else
 SRC_DIRS = $(addprefix $(srcdir)/,src/* crt ldso)
 BASE_GLOBS = $(addsuffix /*.c,$(SRC_DIRS))
 ARCH_GLOBS = $(addsuffix /$(ARCH)/*.[csS],$(SRC_DIRS))
 BASE_SRCS = $(sort $(wildcard $(BASE_GLOBS)))
 ARCH_SRCS = $(sort $(wildcard $(ARCH_GLOBS)))
-endif
-
+ifeq ($(occlum),yes)
+BASE_SRCS += ./occlum_stub/__occlum_syscall.c
+ARCH_SRCS += ./src/internal/occlum/syscall.s
+ARCH_SRCS_OCCLUM = $(filter-out ./src/internal/$(ARCH)/syscall.s , $(ARCH_SRCS))
+BASE_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(BASE_SRCS)))
+ARCH_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(ARCH_SRCS_OCCLUM)))
+else
 BASE_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(BASE_SRCS)))
 ARCH_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(ARCH_SRCS)))
+endif
+
 # Occlum Notes:
 # If <a_src_dir>/<arch>/%.[csS] exists, <a_src_dir>/%.c will not be compiled
 REPLACED_OBJS = $(sort $(subst /$(ARCH)/,/,$(ARCH_OBJS)))
 ifeq ($(occlum),yes)
-REPLACED_OBJS := $(sort $(subst /occlum/,/,$(REPLACED_OBJS)))
+	REPLACED_OBJS_OCCLUM = $(sort $(subst /occlum/,/,$(REPLACED_OBJS)))
+	ALL_OBJS = $(addprefix obj/, $(filter-out $(REPLACED_OBJS_OCCLUM), $(sort $(BASE_OBJS) $(ARCH_OBJS))))
+else
+	ALL_OBJS = $(addprefix obj/, $(filter-out $(REPLACED_OBJS), $(sort $(BASE_OBJS) $(ARCH_OBJS))))
 endif
-ALL_OBJS = $(addprefix obj/, $(filter-out $(REPLACED_OBJS), $(sort $(BASE_OBJS) $(ARCH_OBJS))))
+
 
 LIBC_OBJS = $(filter obj/src/%,$(ALL_OBJS))
 LDSO_OBJS = $(filter obj/ldso/%,$(ALL_OBJS:%.o=%.lo))
@@ -276,5 +283,10 @@ clean:
 
 distclean: clean
 	rm -f config.mak
+
+show:
+	@echo $(ARCH_OBJS)
+	@echo $(REPLACED_OBJS)
+	@echo $(REPLACED_OBJS_OCCLUM)
 
 .PHONY: all clean install install-libs install-headers install-tools

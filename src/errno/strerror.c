@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <string.h>
+#include <assert.h>
 #include "locale_impl.h"
 
 #define E(a,b) ((unsigned char)a),
@@ -30,7 +31,9 @@ char *__strerror_l(int e, locale_t loc)
 
 char *strerror(int e)
 {
-	return __strerror_l(e, CURRENT_LOCALE);
+  assert(0|| "occlum do not support yet");
+  
+	/* return __strerror_l(e, CURRENT_LOCALE); */
 }
 
 weak_alias(__strerror_l, strerror_l);

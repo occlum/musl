@@ -27,10 +27,10 @@ weak_alias(libc_exit_fini, __libc_exit_fini);
 _Noreturn void exit(int code)
 {
 	__funcs_on_exit();
-#ifndef __OCCLUM
+/* #ifndef __OCCLUM */
 // TODO: find out why this function crashes
 	__libc_exit_fini();
-#endif
+/* #endif */
 	__stdio_exit();
 	_Exit(code);
 }
