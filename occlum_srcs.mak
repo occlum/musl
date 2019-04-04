@@ -119,5 +119,6 @@ ARCH_SRCS += ./crt/x86_64/crtn.s
 ARCH_SRCS += ./src/string/x86_64/memcpy.s
 ARCH_SRCS += ./src/string/x86_64/memset.s
 ARCH_SRCS += ./src/thread/occlum/clone.s
+ARCH_SRCS += ./src/thread/occlum/__set_thread_area.s
 ARCH_SRCS += ./src/internal/occlum/syscall.s
 ARCH_SRCS := $(sort $(ARCH_SRCS))
