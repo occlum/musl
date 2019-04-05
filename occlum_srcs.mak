@@ -9,6 +9,7 @@ BASE_SRCS += ./src/ctype/isdigit.c
 BASE_SRCS += ./src/env/__environ.c
 BASE_SRCS += ./src/env/__init_tls.c
 BASE_SRCS += ./src/env/__libc_start_main.c
+BASE_SRCS += ./src/env/__stack_chk_fail.c
 BASE_SRCS += ./src/errno/__errno_location.c
 BASE_SRCS += ./src/errno/strerror.c
 BASE_SRCS += ./src/exit/exit.c
