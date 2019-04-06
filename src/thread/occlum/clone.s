@@ -7,6 +7,9 @@ __child_start:
     mov 16(%rsp), %rdi
     // 8(%rsp)  - int(*func)(void*)
     mov 8(%rsp), %rcx
+    // Make %rsp 16-aligned before call
+    and $-16, %rsp
+    // Call user-given thread function
     call *%rcx
 
     // Call exit syscall
@@ -38,7 +41,7 @@ __clone:
     //
     // Save child stack addr into another scratch register
     mov %rsi, %r10
-    // Align child stack addr to 16 byte boundary
+    // Make child stack addr 16-byte aligned initially
     and $-16, %r10
     // Push args into the stack of the child
     sub $8, %r10
