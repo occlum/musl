@@ -18,7 +18,6 @@
 
 void __lock(volatile int *l)
 {
-#ifndef __OCCLUM
 	if (!libc.threads_minus_1) return;
 	/* fast path: INT_MIN for the lock, +1 for the congestion */
 	int current = a_cas(l, 0, INT_MIN + 1);
@@ -48,17 +47,14 @@ void __lock(volatile int *l)
 		if (val == current) return;
 		current = val;
 	}
-#endif
 }
 
 void __unlock(volatile int *l)
 {
-#ifndef __OCCLUM
 	/* Check l[0] to see if we are multi-threaded. */
 	if (l[0] < 0) {
 		if (a_fetch_add(l, -(INT_MIN + 1)) != (INT_MIN + 1)) {
 			__wake(l, 1, 1);
 		}
 	}
-#endif
 }
