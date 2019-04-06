@@ -26,20 +26,16 @@ int __malloc_replaced;
 
 static inline void lock(volatile int *lk)
 {
-#ifndef __OCCLUM
 	if (libc.threads_minus_1)
 		while(a_swap(lk, 1)) __wait(lk, lk+1, 1, 1);
-#endif
 }
 
 static inline void unlock(volatile int *lk)
 {
-#ifndef __OCCLUM
 	if (lk[0]) {
 		a_store(lk, 0);
 		if (lk[1]) __wake(lk, 1, 1);
 	}
-#endif
 }
 
 static inline void lock_bin(int i)

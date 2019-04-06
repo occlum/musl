@@ -11,7 +11,7 @@ int gettimeofday(struct timeval *restrict tv, void *restrict tz)
 	tv->tv_sec = ts.tv_sec;
 	tv->tv_usec = (int)ts.tv_nsec / 1000;
 #else
-	__syscall(SYS_gettimeofday, tv, NULL);
+	__syscall(SYS_gettimeofday, tv, tz);
 #endif
 	return 0;
 }
