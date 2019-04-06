@@ -14,7 +14,6 @@
 
 static int traverses_stack_p(uintptr_t old, uintptr_t new)
 {
-#ifndef __OCCLUM
 	const uintptr_t len = 8<<20;
 	uintptr_t a, b;
 
@@ -27,17 +26,7 @@ static int traverses_stack_p(uintptr_t old, uintptr_t new)
 	if (new>a && old<b) return 1;
 
 	return 0;
-#else
-	return 0;
-#endif
 }
-
-#ifdef __OCCLUM
-volatile long __brk_addr = 0;
-void use_brk_addr(long brk_addr) {
-    __brk_addr = brk_addr;
-}
-#endif
 
 /* Expand the heap in-place if brk can be used, or otherwise via mmap,
  * using an exponential lower bound on growth by mmap to make
@@ -52,11 +41,6 @@ void *__expand_heap(size_t *pn)
 	static uintptr_t brk;
 	static unsigned mmap_step;
 	size_t n = *pn;
-
-#ifdef __OCCLUM
-	// FIXME: this hack magically fixes the bug of mistaken value of brk
-	use_brk_addr((long)&brk);
-#endif
 
 	if (n > SIZE_MAX/2 - PAGE_SIZE) {
 		errno = ENOMEM;
