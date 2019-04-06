@@ -6,6 +6,9 @@ __set_thread_area:
     // Func args:
     //  void* addr - %rdi
 
+    // Make %rsp 16-aligned before call
+    sub $8, %rsp
+
     // Pass addr
     mov %rdi, %rdx
     // Pass SET_FS
@@ -17,4 +20,8 @@ __set_thread_area:
     //  int code    - %rsi
     //  void* addr  - %rdx
     call __syscall
+
+    // Restore %rsp
+    add $8, %rsp
+
     ret
