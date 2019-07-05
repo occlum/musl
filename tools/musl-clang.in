@@ -1,6 +1,7 @@
 #!/bin/sh
 cc="@CC@"
 libc="@PREFIX@"
+clang_ver="@CLANGVER@"
 libc_inc="@INCDIR@"
 libc_lib="@LIBDIR@"
 thisdir="`cd "$(dirname "$0")"; pwd`"
@@ -27,6 +28,7 @@ exec $cc \
     -nostdinc \
     --sysroot "$libc" \
     -isystem "$libc_inc" \
+    -isystem "$libc_lib"/clang/"$clang_ver"/include \
     -L-user-start \
     $sflags \
     "$@" \

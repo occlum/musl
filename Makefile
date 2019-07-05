@@ -16,6 +16,7 @@ prefix = /usr/local/occlum
 includedir = $(prefix)/include
 libdir = $(prefix)/lib
 syslibdir = /lib
+clang_version = $(shell clang --version | grep version | sed "s/.*version \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/")
 
 # Yes - to build the libc for Occlum
 # No - to build the libc for Linux
@@ -241,11 +242,11 @@ obj/musl-gcc: config.mak
 	chmod +x $@
 
 obj/%-clang: $(srcdir)/tools/%-clang.in config.mak
-	sed -e 's!@CC@!$(WRAPCC_CLANG)!g' -e 's!@PREFIX@!$(prefix)!g' -e 's!@INCDIR@!$(includedir)!g' -e 's!@LIBDIR@!$(libdir)!g' -e 's!@LDSO@!$(LDSO_PATHNAME)!g' $< > $@
+	sed -e 's!@CC@!$(WRAPCC_CLANG)!g' -e 's!@PREFIX@!$(prefix)!g' -e 's!@CLANGVER@!$(clang_version)!g' -e 's!@INCDIR@!$(includedir)!g' -e 's!@LIBDIR@!$(libdir)!g' -e 's!@LDSO@!$(LDSO_PATHNAME)!g' $< > $@
 	chmod +x $@
 
 obj/%-clang++: $(srcdir)/tools/%-clang++.in config.mak
-	sed -e 's!@CXX@!$(WRAPCXX_CLANG)!g' -e 's!@PREFIX@!$(prefix)!g' -e 's!@INCDIR@!$(includedir)!g' -e 's!@LIBDIR@!$(libdir)!g' -e 's!@LDSO@!$(LDSO_PATHNAME)!g' $< > $@
+	sed -e 's!@CXX@!$(WRAPCXX_CLANG)!g' -e 's!@PREFIX@!$(prefix)!g' -e 's!@CLANGVER@!$(clang_version)!g' -e 's!@INCDIR@!$(includedir)!g' -e 's!@LIBDIR@!$(libdir)!g' -e 's!@LDSO@!$(LDSO_PATHNAME)!g' $< > $@
 	chmod +x $@
 
 $(DESTDIR)$(bindir)/%: obj/%

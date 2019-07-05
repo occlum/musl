@@ -1,6 +1,7 @@
 #!/bin/sh
 cc="@CXX@"
 libc="@PREFIX@"
+clang_ver="@CLANGVER@"
 libc_inc="@INCDIR@"
 libc_lib="@LIBDIR@"
 thisdir="`cd "$(dirname "$0")"; pwd`"
@@ -28,6 +29,7 @@ exec $cc \
     -nostdinc++ \
     --sysroot "$libc" \
     -isystem "$libc_inc" \
+    -isystem "$libc_lib"/clang/"$clang_ver"/include \
     -I "$libc_inc"/c++/v1 \
     -stdlib=libc++ \
     -L-user-start \
