@@ -1035,7 +1035,9 @@ typedef struct {
 #define AT_L3_CACHESIZE		46
 #define AT_L3_CACHEGEOMETRY	47
 
-
+#ifdef __OCCLUM
+#define AT_OCCLUM_ENTRY		48
+#endif
 
 typedef struct {
   Elf32_Word n_namesz;

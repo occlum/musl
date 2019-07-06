@@ -23,7 +23,7 @@ libgcc.a%s %:if-exists(libgcc_eh.a%s)
 crtendS.o%s $libdir/crtn.o
 
 *link:
--locclum_stub -dynamic-linker $ldso -nostdlib %{shared:-shared} %{static:-static} %{rdynamic:-export-dynamic} %{!shared:-pie}
+-dynamic-linker $ldso -nostdlib %{shared:-shared} %{static:-static} %{rdynamic:-export-dynamic} %{!shared:-pie}
 
 *esp_link:
 

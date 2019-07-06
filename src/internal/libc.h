@@ -47,6 +47,9 @@ hidden void __fork_handler(int);
 
 extern hidden size_t __hwcap;
 extern hidden size_t __sysinfo;
+#ifdef __OCCLUM
+extern hidden size_t __occlum_entry;
+#endif
 extern char *__progname, *__progname_full;
 
 extern hidden const char __libc_version[];
