@@ -22,7 +22,7 @@ syslibdir = /lib
 occlum = yes
 
 ifeq ($(occlum),yes)
-SRC_DIRS = $(addprefix $(srcdir)/,src/* crt)
+SRC_DIRS = $(addprefix $(srcdir)/,src/* crt ldso)
 BASE_GLOBS = $(addsuffix /*.c,$(SRC_DIRS))
 ARCH_GLOBS = $(addsuffix /$(ARCH)/*.[csS],$(SRC_DIRS))
 OCCLUM_GLOBS = $(addsuffix /occlum/*.[csS],$(SRC_DIRS))
@@ -91,11 +91,7 @@ EMPTY_LIB_NAMES = m rt pthread crypt util xnet resolv dl
 EMPTY_LIBS = $(EMPTY_LIB_NAMES:%=lib/lib%.a)
 CRT_LIBS = $(addprefix lib/,$(notdir $(CRT_OBJS)))
 STATIC_LIBS = lib/libc.a
-ifeq ($(occlum),yes)
-SHARED_LIBS =
-else
 SHARED_LIBS = lib/libc.so
-endif
 TOOL_LIBS = lib/musl-gcc.specs
 ifeq ($(occlum),yes)
 ALL_LIBS = $(CRT_LIBS) $(STATIC_LIBS) $(SHARED_LIBS) $(EMPTY_LIBS) $(TOOL_LIBS)
@@ -113,10 +109,10 @@ LDSO_PATHNAME = $(syslibdir)/ld-musl-$(ARCH)$(SUBARCH).so.1
 -include config.mak
 
 ifeq ($(occlum),yes)
-CLANG_BIN_PATH := $(shell clang -print-prog-name=clang)
-LLVM_PATH := $(abspath $(dir $(CLANG_BIN_PATH))../)
+-CLANG_BIN_PATH := $(shell clang -print-prog-name=clang)
+-LLVM_PATH := $(abspath $(dir $(CLANG_BIN_PATH))../)
 CFLAGS += -D__OCCLUM -fno-stack-protector -Wno-shift-op-parentheses
-CFLAGS += -Xclang -load -Xclang $(LLVM_PATH)/lib/LLVMMDSFIIRInserter.so
+-CFLAGS += -Xclang -load -Xclang $(LLVM_PATH)/lib/LLVMMDSFIIRInserter.so
 endif
 
 ifeq ($(ARCH),)
