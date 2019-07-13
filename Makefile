@@ -41,8 +41,18 @@ endif
 BASE_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(BASE_SRCS)))
 ARCH_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(ARCH_SRCS)))
 ifeq ($(occlum),yes)
+# Occlum Notes:
+#
+# If a high priority source code file exists, then its low priority counterpart
+# will not be compiled.
+#
+# The priorities of source code:
+#   <srcdir>/occlum/<filename>.[csS] >
+#   <srcdir>/$(ARCH)/<filename>.[csS] >
+#   <srcdir>/<filename>.[csS]
 OCCLUM_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(OCCLUM_SRCS)))
 REPLACED_BASE_OBJS = $(sort $(subst /$(ARCH)/,/,$(ARCH_OBJS)))
+REPLACED_BASE_OBJS += $(sort $(subst /occlum/,/,$(OCCLUM_OBJS)))
 REPLACED_ARCH_OBJS = $(sort $(subst /occlum/,/$(ARCH)/,$(OCCLUM_OBJS)))
 ALL_OBJS = $(addprefix obj/, $(filter-out $(REPLACED_BASE_OBJS), $(sort $(BASE_OBJS))) \
                              $(filter-out $(REPLACED_ARCH_OBJS), $(sort $(ARCH_OBJS))) \
@@ -51,9 +61,6 @@ else
 REPLACED_OBJS = $(sort $(subst /$(ARCH)/,/,$(ARCH_OBJS)))
 ALL_OBJS = $(addprefix obj/, $(filter-out $(REPLACED_OBJS), $(sort $(BASE_OBJS) $(ARCH_OBJS))))
 endif
-
-# Occlum Notes:
-# If <a_src_dir>/<arch>/%.[csS] exists, <a_src_dir>/%.c will not be compiled
 
 LIBC_OBJS = $(filter obj/src/%,$(ALL_OBJS))
 LDSO_OBJS = $(filter obj/ldso/%,$(ALL_OBJS:%.o=%.lo))
