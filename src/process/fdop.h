@@ -9,6 +9,6 @@ struct fdop {
 #ifndef __OCCLUM
 	const char path[];
 #else
-    const char* path;
+	const char* path;
 #endif
 };

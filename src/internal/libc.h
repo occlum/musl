@@ -49,6 +49,10 @@ extern hidden size_t __hwcap;
 extern hidden size_t __sysinfo;
 #ifdef __OCCLUM
 extern hidden size_t __occlum_entry;
+// A program that is compiled with Occlum's fork of musl libc can run
+// on either Occlum or Linux. We can detect whether the OS that is hosting
+// the program by checking whether __occlum_entry is non-zero.
+#define IS_RUNNING_ON_OCCLUM      (__occlum_entry != 0)
 #endif
 extern char *__progname, *__progname_full;
 

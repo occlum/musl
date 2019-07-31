@@ -35,7 +35,6 @@ void __init_libc(char **envp, char *pn)
 	__sysinfo = aux[AT_SYSINFO];
 #ifdef __OCCLUM
 	__occlum_entry = aux[AT_OCCLUM_ENTRY];
-	if (__occlum_entry == 0) a_crash();
 #endif
 	libc.page_size = aux[AT_PAGESZ];
 

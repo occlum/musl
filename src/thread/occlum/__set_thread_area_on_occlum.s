@@ -1,8 +1,8 @@
 .text
-.global __set_thread_area
-.hidden __set_thread_area
-.type __set_thread_area,@function
-__set_thread_area:
+.global __set_thread_area_on_occlum
+.hidden __set_thread_area_on_occlum
+.type __set_thread_area_on_occlum,@function
+__set_thread_area_on_occlum:
     // Func args:
     //  void* addr - %rdi
 

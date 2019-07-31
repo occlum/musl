@@ -496,7 +496,7 @@ void __bin_chunk(struct chunk *self)
 		uintptr_t a = (uintptr_t)self + SIZE_ALIGN+PAGE_SIZE-1 & -PAGE_SIZE;
 		uintptr_t b = (uintptr_t)next - SIZE_ALIGN & -PAGE_SIZE;
 #ifdef __OCCLUM
-        memset((void*)a, 0, b-a);
+		if (IS_RUNNING_ON_OCCLUM) memset((void*)a, 0, b-a);
 #else
 #if 1
 		__madvise((void *)a, b-a, MADV_DONTNEED);

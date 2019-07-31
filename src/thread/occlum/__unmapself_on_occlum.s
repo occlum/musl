@@ -1,7 +1,7 @@
 .text
-.global __unmapself
-.type   __unmapself,@function
-__unmapself:
+.global __unmapself_on_occlum
+.type   __unmapself_on_occlum,@function
+__unmapself_on_occlum:
     // Function args:
     //   void* base  - %rdi
     //   size_t size - %rsi

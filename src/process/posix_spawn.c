@@ -8,8 +8,13 @@
 #include "syscall.h"
 #include "pthread_impl.h"
 #include "fdop.h"
+#include "libc.h"
 
-#ifndef __OCCLUM
+// ===========================================================================
+// Occlum notes:
+// posix_spawn on native OS is implemented as fork + execv.
+// ===========================================================================
+
 struct args {
 	int p[2];
 	sigset_t oldmask;
@@ -149,7 +154,7 @@ fail:
 }
 
 
-int posix_spawn(pid_t *restrict res, const char *restrict path,
+int posix_spawn_on_native(pid_t *restrict res, const char *restrict path,
 	const posix_spawn_file_actions_t *fa,
 	const posix_spawnattr_t *restrict attr,
 	char *const argv[restrict], char *const envp[restrict])
@@ -192,9 +197,12 @@ int posix_spawn(pid_t *restrict res, const char *restrict path,
 	return ec;
 }
 
-#else
+// ===========================================================================
+// Occlum notes:
+// posix_spawn on Occlum is implemented via the spawn syscall.
+// ===========================================================================
 
-int posix_spawn(pid_t *restrict res, const char *restrict path,
+int posix_spawn_on_occlum(pid_t *restrict res, const char *restrict path,
     const posix_spawn_file_actions_t *fa,
     const posix_spawnattr_t *restrict attr,
     char *const argv[restrict], char *const envp[restrict])
@@ -208,4 +216,16 @@ int posix_spawn(pid_t *restrict res, const char *restrict path,
     int ret = syscall(__NR_spawn, res, path, argv, envp, op);
     return ret;
 }
-#endif
+
+
+int posix_spawn(pid_t *restrict res, const char *restrict path,
+    const posix_spawn_file_actions_t *fa,
+    const posix_spawnattr_t *restrict attr,
+    char *const argv[restrict], char *const envp[restrict])
+{
+    if (IS_RUNNING_ON_OCCLUM) {
+        return posix_spawn_on_occlum(res, path, fa, attr, argv, envp);
+    } else {
+        return posix_spawn_on_native(res, path, fa, attr, argv, envp);
+    }
+}

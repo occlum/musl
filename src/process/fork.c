@@ -13,6 +13,14 @@ weak_alias(dummy, __fork_handler);
 
 pid_t fork(void)
 {
+#ifdef __OCCLUM
+	if (IS_RUNNING_ON_OCCLUM) {
+		/* Occlum does NOT support fork. Use posix_spawn instead. */
+		errno = ENOSYS;
+		return -1;
+	}
+#endif
+
 	pid_t ret;
 	sigset_t set;
 	__fork_handler(-1);

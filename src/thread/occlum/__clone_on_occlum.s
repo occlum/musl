@@ -1,8 +1,8 @@
 .text
-.global __child_start
-.hidden __child_start
-.type   __child_start,@function
-__child_start:
+.global __child_start_on_occlum
+.hidden __child_start_on_occlum
+.type   __child_start_on_occlum,@function
+__child_start_on_occlum:
     // 16(%rsp) - void* args
     mov 16(%rsp), %rdi
     // 8(%rsp)  - int(*func)(void*)
@@ -23,10 +23,10 @@ __child_start:
     hlt
 
 .text
-.global __clone
-.hidden __clone
-.type   __clone,@function
-__clone:
+.global __clone_on_occlum
+.hidden __clone_on_occlum
+.type   __clone_on_occlum,@function
+__clone_on_occlum:
     // Func args:
     //  int(*func)(void*) - %rdi
     //  void* stack - %rsi
@@ -53,7 +53,7 @@ __clone:
     // LibOS will find the entry point of the child by popping
     // the value from the top of the stack of the new thread.
     sub $8, %r10
-    mov __child_start@GOTPCREL(%rip), %r11
+    mov __child_start_on_occlum@GOTPCREL(%rip), %r11
     mov %r11, (%r10)
 
     //

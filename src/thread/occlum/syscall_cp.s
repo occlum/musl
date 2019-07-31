@@ -3,6 +3,8 @@
 .hidden __cp_begin
 .global __cp_end
 .hidden __cp_end
+.global __cp_x86_64
+.hidden __cp_x86_64
 .global __cp_cancel
 .hidden __cp_cancel
 .hidden __cancel
@@ -15,7 +17,11 @@ __cp_begin:
 	mov (%rdi),%eax
 	test %eax,%eax
 	jnz __cp_cancel
-	// Prepare the instructions
+	// Is running on Occlum?
+	movq __occlum_entry(%rip), %rax
+	test %rax, %rax
+	jz __cp_x86_64
+	// Prepare the registers for Occlum syscalls
 	mov %rsi,%rdi
 	mov %rdx,%rsi
 	mov %rcx,%rdx
@@ -27,9 +33,23 @@ __cp_begin:
 	// Do Occlum syscall
 	movq __occlum_entry(%rip), %rax
 	jmpq *%rax
-__cp_end:
 	// This should never happen!
 	ud2
+__cp_x86_64:
+	// Prepare the registers for Linux syscalls
+	mov %rdi,%r11
+	mov %rsi,%rax
+	mov %rdx,%rdi
+	mov %rcx,%rsi
+	mov %r8,%rdx
+	mov %r9,%r10
+	mov 8(%rsp),%r8
+	mov 16(%rsp),%r9
+	mov %r11,8(%rsp)
+	// Do Linux syscall
+	syscall
+__cp_end:
+	ret
 __cp_cancel:
 	jmp __cancel
 
