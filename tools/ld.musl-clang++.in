@@ -49,4 +49,4 @@ for x ; do
     esac
 done
 
-exec $($cc -print-prog-name=ld) -nostdlib "$@" -lc++ -lc++abi -lc -dynamic-linker "$ldso"
+exec $($cc -print-prog-name=ld) -nostdlib "$@" -lc++ -lc++abi -lunwind -lc -dynamic-linker "$ldso"
