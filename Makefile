@@ -109,12 +109,13 @@ endif
 ALL_TOOLS = obj/musl-gcc
 
 WRAPCC_GCC = gcc
-WRAPCC_CLANG = clang
-WRAPCXX_CLANG = clang++
 
 LDSO_PATHNAME = $(syslibdir)/ld-musl-$(ARCH)$(SUBARCH).so.1
 
 -include config.mak
+
+WRAPCC_CLANG = $(prefix)/bin/clang
+WRAPCXX_CLANG = $(prefix)/bin/clang++
 
 ifeq ($(occlum),yes)
 -CLANG_BIN_PATH := $(shell clang -print-prog-name=clang)
