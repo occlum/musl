@@ -1,0 +1,50 @@
+#!/bin/sh
+cc="@CXX@"
+libc_lib="@LIBDIR@"
+ldso="@LDSO@"
+cleared=
+shared=
+userlinkdir=
+userlink=
+
+for x ; do
+    test "$cleared" || set -- ; cleared=1
+
+    case "$x" in
+        -L-user-start)
+            userlinkdir=1
+            ;;
+        -L-user-end)
+            userlinkdir=
+            ;;
+        -L*)
+            test "$userlinkdir" && set -- "$@" "$x"
+            ;;
+        -l-user-start)
+            userlink=1
+            ;;
+        -l-user-end)
+            userlink=
+            ;;
+          crtbegin*.o)
+            set -- "$@" $($cc -print-file-name=clang_rt.crtbegin-x86_64.o)
+            ;;
+          crtend*.o)
+            set -- "$@" $($cc -print-file-name=clang_rt.crtend-x86_64.o)
+            ;;
+        -l*)
+            test "$userlink" && set -- "$@" "$x"
+            ;;
+        -shared)
+            shared=1
+            set -- "$@" -shared
+            ;;
+        -sysroot=*|--sysroot=*)
+            ;;
+        *)
+            set -- "$@" "$x"
+            ;;
+    esac
+done
+
+exec $($cc -print-prog-name=ld) -nostdlib "$@" -lc++ -lc++abi -lunwind -lc -dynamic-linker "$ldso"
