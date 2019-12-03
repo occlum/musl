@@ -74,7 +74,7 @@ IMPH = $(addprefix $(srcdir)/, src/internal/stdio_impl.h src/internal/pthread_im
 
 LDFLAGS =
 LDFLAGS_AUTO =
-LIBCC = -lgcc
+LIBCC = 
 CPPFLAGS =
 CFLAGS = 
 CFLAGS_AUTO = -Os -pipe
@@ -244,6 +244,14 @@ obj/%-clang: $(srcdir)/tools/%-clang.in config.mak
 	chmod +x $@
 
 obj/%-clang++: $(srcdir)/tools/%-clang++.in config.mak
+	sed -e 's!@CXX@!$(WRAPCXX_CLANG)!g' -e 's!@PREFIX@!$(prefix)!g' -e 's!@CLANGVER@!$(clang_version)!g' -e 's!@INCDIR@!$(includedir)!g' -e 's!@LIBDIR@!$(libdir)!g' -e 's!@LDSO@!$(LDSO_PATHNAME)!g' $< > $@
+	chmod +x $@
+
+obj/%-clang.fin: $(srcdir)/tools/%-clang.fin.in config.mak
+	sed -e 's!@CC@!$(WRAPCC_CLANG)!g' -e 's!@PREFIX@!$(prefix)!g' -e 's!@CLANGVER@!$(clang_version)!g' -e 's!@INCDIR@!$(includedir)!g' -e 's!@LIBDIR@!$(libdir)!g' -e 's!@LDSO@!$(LDSO_PATHNAME)!g' $< > $@
+	chmod +x $@
+
+obj/%-clang++.fin: $(srcdir)/tools/%-clang++.fin.in config.mak
 	sed -e 's!@CXX@!$(WRAPCXX_CLANG)!g' -e 's!@PREFIX@!$(prefix)!g' -e 's!@CLANGVER@!$(clang_version)!g' -e 's!@INCDIR@!$(includedir)!g' -e 's!@LIBDIR@!$(libdir)!g' -e 's!@LDSO@!$(LDSO_PATHNAME)!g' $< > $@
 	chmod +x $@
 

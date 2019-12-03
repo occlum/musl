@@ -294,6 +294,7 @@ tool_libs="$tool_libs lib/musl-gcc.specs"
 fi
 if test "$clang_wrapper" = yes ; then
 tools="$tools obj/musl-clang obj/ld.musl-clang obj/musl-clang++ obj/ld.musl-clang++"
+tools="$tools obj/musl-clang.fin obj/ld.musl-clang.fin obj/musl-clang++.fin obj/ld.musl-clang++.fin"
 fi
 
 #
