@@ -1,13 +1,10 @@
 #include <features.h>
-
-/* Occlum notes:
- * TODO: is it sufficient to have an empty implementation?
- * */
-
-hidden void __restore()
-{
-}
+#include <stdlib.h>
+#include "syscall.h"
 
 hidden void __restore_rt()
 {
+    __syscall(SYS_rt_sigreturn);
+    // This should never happen
+    abort();
 }
