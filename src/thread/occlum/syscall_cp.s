@@ -17,25 +17,6 @@ __cp_begin:
 	mov (%rdi),%eax
 	test %eax,%eax
 	jnz __cp_cancel
-	// Is running on Occlum?
-	movq __occlum_entry(%rip), %rax
-	test %rax, %rax
-	jz __cp_x86_64
-	// Prepare the registers for Occlum syscalls
-	mov %rsi,%rdi
-	mov %rdx,%rsi
-	mov %rcx,%rdx
-	mov %r8,%rcx
-	mov %r9,%r8
-	mov 0x08(%rsp),%r9
-	mov 0x10(%rsp),%rax
-	mov %rax,0x08(%rsp)
-	// Do Occlum syscall
-	movq __occlum_entry(%rip), %rax
-	jmpq *%rax
-	// This should never happen!
-	ud2
-__cp_x86_64:
 	// Prepare the registers for Linux syscalls
 	mov %rdi,%r11
 	mov %rsi,%rax
@@ -46,6 +27,13 @@ __cp_x86_64:
 	mov 8(%rsp),%r8
 	mov 16(%rsp),%r9
 	mov %r11,8(%rsp)
+	// Is running on Occlum?
+	cmpq $0, __occlum_entry(%rip)
+	je __cp_syscall_x86_64
+	// Do Occlum syscall
+	call __occlum_entry(%rip)
+	jmp __cp_end
+__cp_syscall_x86_64:
 	// Do Linux syscall
 	syscall
 __cp_end:
