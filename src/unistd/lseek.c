@@ -1,6 +1,13 @@
 #include <unistd.h>
 #include "syscall.h"
 
+/* Occlum's notes:
+ * We haven't implemented llseek. So, just use lseek.
+ */
+#ifdef __OCCLUM
+#undef SYS__llseek
+#endif
+
 off_t __lseek(int fd, off_t offset, int whence)
 {
 #ifdef SYS__llseek

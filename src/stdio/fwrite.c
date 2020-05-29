@@ -9,6 +9,9 @@ size_t __fwritex(const unsigned char *restrict s, size_t l, FILE *restrict f)
 
 	if (l > f->wend - f->wpos) return f->write(f, s, l);
 
+    /* Occlum's note:
+     * If the file uses a line buffer, then try to flush all contents til the
+     * last \n character, and put the remaining part into the buffer */
 	if (f->lbf >= 0) {
 		/* Match /^(.*\n|)/ */
 		for (i=l; i && s[i-1] != '\n'; i--);

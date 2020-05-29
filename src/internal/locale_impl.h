@@ -39,6 +39,8 @@ hidden char *__gettextdomain(void);
 
 #define CURRENT_UTF8 (!!__pthread_self()->locale->cat[LC_CTYPE])
 
+#define CURRENT_UTF8 1
+
 #undef MB_CUR_MAX
 #define MB_CUR_MAX (CURRENT_UTF8 ? 4 : 1)
 
