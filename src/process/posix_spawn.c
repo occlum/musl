@@ -8,6 +8,12 @@
 #include "syscall.h"
 #include "pthread_impl.h"
 #include "fdop.h"
+#include "libc.h"
+
+// ===========================================================================
+// Occlum notes:
+// posix_spawn on native OS is implemented as fork + execv.
+// ===========================================================================
 
 struct args {
 	int p[2];
@@ -160,7 +166,7 @@ fail:
 }
 
 
-int posix_spawn(pid_t *restrict res, const char *restrict path,
+int posix_spawn_on_native(pid_t *restrict res, const char *restrict path,
 	const posix_spawn_file_actions_t *fa,
 	const posix_spawnattr_t *restrict attr,
 	char *const argv[restrict], char *const envp[restrict])
@@ -201,4 +207,40 @@ int posix_spawn(pid_t *restrict res, const char *restrict path,
 	pthread_setcancelstate(cs, 0);
 
 	return ec;
+}
+
+// ===========================================================================
+// Occlum notes:
+// posix_spawn on Occlum is implemented via the spawn syscall.
+// ===========================================================================
+
+int posix_spawn_on_occlum(pid_t *restrict res, const char *restrict path,
+    const posix_spawn_file_actions_t *fa,
+    const posix_spawnattr_t *restrict attr,
+    char *const argv[restrict], char *const envp[restrict])
+{
+    // Reverse the linked list of fdop so that FILO becomes FIFO
+    struct fdop *op = NULL;
+    if (fa && fa->__actions) {
+        for (op = fa->__actions; op->next; op = op->next) { }
+    }
+
+    int ret = syscall(__NR_spawn, res, path, argv, envp, op);
+    return ret;
+}
+
+
+int posix_spawn(pid_t *restrict res, const char *restrict path,
+    const posix_spawn_file_actions_t *fa,
+    const posix_spawnattr_t *restrict attr,
+    char *const argv[restrict], char *const envp[restrict])
+{
+#ifdef __OCCLUM
+    if (IS_RUNNING_ON_OCCLUM) {
+        return posix_spawn_on_occlum(res, path, fa, attr, argv, envp);
+    } else {
+        return posix_spawn_on_native(res, path, fa, attr, argv, envp);
+    }
+#endif
+    return posix_spawn_on_native(res, path, fa, attr, argv, envp);
 }

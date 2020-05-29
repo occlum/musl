@@ -344,3 +344,5 @@
 #define __NR_fsmount		432
 #define __NR_fspick		433
 
+/* Occlum notes: special syscalls of Occlum */
+#define __NR_spawn				360

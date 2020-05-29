@@ -8,5 +8,9 @@ struct fdop {
 	struct fdop *next, *prev;
 	int cmd, fd, srcfd, oflag;
 	mode_t mode;
-	char path[];
+#ifndef __OCCLUM
+	const char path[];
+#else
+	const char* path;
+#endif
 };
