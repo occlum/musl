@@ -1581,6 +1581,20 @@ static void install_new_tls(void)
 	__restore_sigs(&set);
 }
 
+#ifdef __OCCLUM
+static void enable_syscall(size_t *sp)
+{
+	// Enable syscall to Occlum
+	size_t *auxv;
+	for (auxv=sp+1+*sp+1; *auxv; auxv++);
+	auxv++;
+
+	for (; *auxv; auxv+=2)
+		if (*auxv == AT_OCCLUM_ENTRY)
+			__occlum_entry = *(auxv+1);
+}
+#endif
+
 /* Stage 1 of the dynamic linker is defined in dlstart.c. It calls the
  * following stage 2 and stage 3 functions via primitive symbolic lookup
  * since it does not have access to their addresses to begin with. */
@@ -1611,6 +1625,9 @@ hidden void __dls2(unsigned char *base, size_t *sp)
 	} else {
 		ldso.base = base;
 	}
+#ifdef __OCCLUM
+	enable_syscall(sp);
+#endif
 	Ehdr *ehdr = (void *)ldso.base;
 	ldso.name = ldso.shortname = "libc.so";
 	ldso.phnum = ehdr->e_phnum;

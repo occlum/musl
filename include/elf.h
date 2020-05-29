@@ -1045,6 +1045,9 @@ typedef struct {
 
 #define AT_MINSIGSTKSZ		51
 
+#ifdef __OCCLUM
+#define AT_OCCLUM_ENTRY		48
+#endif
 
 typedef struct {
   Elf32_Word n_namesz;

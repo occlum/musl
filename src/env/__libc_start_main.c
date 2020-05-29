@@ -15,7 +15,11 @@ extern weak hidden void (*const __init_array_start)(void), (*const __init_array_
 static void dummy1(void *p) {}
 weak_alias(dummy1, __init_ssp);
 
+#ifndef __OCCLUM
 #define AUX_CNT 38
+#else
+#define AUX_CNT (AT_OCCLUM_ENTRY + 1)
+#endif
 
 #ifdef __GNUC__
 __attribute__((__noinline__))
@@ -29,6 +33,9 @@ void __init_libc(char **envp, char *pn)
 	for (i=0; auxv[i]; i+=2) if (auxv[i]<AUX_CNT) aux[auxv[i]] = auxv[i+1];
 	__hwcap = aux[AT_HWCAP];
 	if (aux[AT_SYSINFO]) __sysinfo = aux[AT_SYSINFO];
+#ifdef __OCCLUM
+	__occlum_entry = aux[AT_OCCLUM_ENTRY];
+#endif
 	libc.page_size = aux[AT_PAGESZ];
 
 	if (!pn) pn = (void*)aux[AT_EXECFN];

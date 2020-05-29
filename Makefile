@@ -12,20 +12,54 @@ srcdir = .
 exec_prefix = /usr/local
 bindir = $(exec_prefix)/bin
 
-prefix = /usr/local/musl
+prefix = /usr/local/occlum
 includedir = $(prefix)/include
 libdir = $(prefix)/lib
 syslibdir = /lib
 
+# Yes - to build the libc for Occlum
+# No - to build the libc for Linux
+occlum = yes
+
+ifeq ($(occlum),yes)
+SRC_DIRS = $(addprefix $(srcdir)/,src/* crt ldso)
+BASE_GLOBS = $(addsuffix /*.c,$(SRC_DIRS))
+ARCH_GLOBS = $(addsuffix /$(ARCH)/*.[csS],$(SRC_DIRS))
+OCCLUM_GLOBS = $(addsuffix /occlum/*.[csS],$(SRC_DIRS))
+BASE_SRCS = $(sort $(wildcard $(BASE_GLOBS)))
+ARCH_SRCS = $(sort $(wildcard $(ARCH_GLOBS)))
+OCCLUM_SRCS = $(sort $(wildcard $(OCCLUM_GLOBS)))
+else
 SRC_DIRS = $(addprefix $(srcdir)/,src/* crt ldso)
 BASE_GLOBS = $(addsuffix /*.c,$(SRC_DIRS))
 ARCH_GLOBS = $(addsuffix /$(ARCH)/*.[csS],$(SRC_DIRS))
 BASE_SRCS = $(sort $(wildcard $(BASE_GLOBS)))
 ARCH_SRCS = $(sort $(wildcard $(ARCH_GLOBS)))
+endif
+
 BASE_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(BASE_SRCS)))
 ARCH_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(ARCH_SRCS)))
+ifeq ($(occlum),yes)
+# Occlum Notes:
+#
+# If a high priority source code file exists, then its low priority counterpart
+# will not be compiled.
+#
+# The priorities of source code:
+#   <srcdir>/occlum/<filename>.[csS] >
+#   <srcdir>/$(ARCH)/<filename>.[csS] >
+#   <srcdir>/<filename>.[csS]
+OCCLUM_OBJS = $(patsubst $(srcdir)/%,%.o,$(basename $(OCCLUM_SRCS)))
+REPLACED_BASE_OBJS = $(sort $(subst /$(ARCH)/,/,$(ARCH_OBJS)))
+REPLACED_BASE_OBJS += $(sort $(subst /occlum/,/,$(OCCLUM_OBJS)))
+REPLACED_ARCH_OBJS = $(sort $(subst /occlum/,/$(ARCH)/,$(OCCLUM_OBJS)))
+ALL_OBJS = $(addprefix obj/, $(filter-out $(REPLACED_BASE_OBJS), $(sort $(BASE_OBJS))) \
+                             $(filter-out $(REPLACED_ARCH_OBJS), $(sort $(ARCH_OBJS))) \
+                             $(OCCLUM_OBJS))
+else
 REPLACED_OBJS = $(sort $(subst /$(ARCH)/,/,$(ARCH_OBJS)))
 ALL_OBJS = $(addprefix obj/, $(filter-out $(REPLACED_OBJS), $(sort $(BASE_OBJS) $(ARCH_OBJS))))
+endif
 
 LIBC_OBJS = $(filter obj/src/%,$(ALL_OBJS))
 LDSO_OBJS = $(filter obj/ldso/%,$(ALL_OBJS:%.o=%.lo))
@@ -75,6 +109,10 @@ WRAPCC_CLANG = clang
 LDSO_PATHNAME = $(syslibdir)/ld-musl-$(ARCH)$(SUBARCH).so.1
 
 -include config.mak
+
+ifeq ($(occlum),yes)
+CFLAGS += -D__OCCLUM -fno-stack-protector -Wno-shift-op-parentheses
+endif
 
 ifeq ($(ARCH),)
 
@@ -175,8 +213,13 @@ lib/%.o: obj/crt/$(ARCH)/%.o
 lib/%.o: obj/crt/%.o
 	cp $< $@
 
+ifeq ($(occlum),yes)
+lib/musl-gcc.specs: $(srcdir)/tools/occlum-musl-gcc.specs.sh config.mak
+	sh $< "$(includedir)" "$(libdir)" "$(LDSO_PATHNAME)" > $@
+else
 lib/musl-gcc.specs: $(srcdir)/tools/musl-gcc.specs.sh config.mak
 	sh $< "$(includedir)" "$(libdir)" "$(LDSO_PATHNAME)" > $@
+endif
 
 obj/musl-gcc: config.mak
 	printf '#!/bin/sh\nexec "$${REALGCC:-$(WRAPCC_GCC)}" "$$@" -specs "%s/musl-gcc.specs"\n' "$(libdir)" > $@
