@@ -225,7 +225,7 @@ int posix_spawn_on_occlum(pid_t *restrict res, const char *restrict path,
         for (op = fa->__actions; op->next; op = op->next) { }
     }
 
-    int ret = syscall(__NR_spawn, res, path, argv, envp, op);
+    int ret = syscall(__NR_spawn, res, path, argv, envp, op, attr);
     return ret;
 }
 
