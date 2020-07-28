@@ -1,3 +1,5 @@
+.include "occlum_syscall.h"
+
 .text
 .global __cp_begin
 .hidden __cp_begin
@@ -27,15 +29,7 @@ __cp_begin:
 	mov 8(%rsp),%r8
 	mov 16(%rsp),%r9
 	mov %r11,8(%rsp)
-	// Is running on Occlum?
-	cmpq $0, __occlum_entry(%rip)
-	je __cp_syscall_x86_64
-	// Do Occlum syscall
-	call __occlum_entry(%rip)
-	jmp __cp_end
-__cp_syscall_x86_64:
-	// Do Linux syscall
-	syscall
+	OCCLUM_SYSCALL
 __cp_end:
 	ret
 __cp_cancel:
