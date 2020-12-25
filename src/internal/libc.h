@@ -49,6 +49,8 @@ extern hidden size_t __hwcap;
 extern hidden size_t __sysinfo;
 #ifdef __OCCLUM
 extern hidden size_t __occlum_entry;
+weak extern hidden size_t __occlum_syscall_linux_abi(void) {};
+void init_occlum_syscall(void);
 // A program that is compiled with Occlum's fork of musl libc can run
 // on either Occlum or Linux. We can detect whether the OS that is hosting
 // the program by checking whether __occlum_entry is non-zero.

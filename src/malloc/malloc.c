@@ -281,7 +281,7 @@ static void trim(struct chunk *self, size_t n)
 	__bin_chunk(split);
 }
 
-void *malloc(size_t n)
+weak void *malloc(size_t n)
 {
 	struct chunk *c;
 	int i, j;
@@ -520,7 +520,7 @@ static void unmap_chunk(struct chunk *self)
 	__munmap(base, len);
 }
 
-void free(void *p)
+weak void free(void *p)
 {
 	if (!p) return;
 
